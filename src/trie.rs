@@ -12,7 +12,7 @@ use super::trie_node::{TrieNode, TrieNodeType, TrieValueType};
 /// output version of the string.  A TST node may have a None value if it
 /// is not associated with a dictionary key.
 pub struct Trie {
-    pub root: Option<TrieNodeType>
+    pub root: Option<TrieNodeType>,
     size: usize
 }
 
@@ -32,7 +32,7 @@ impl Trie {
         self.root = self.recursive_insert(&mut self.root.clone(), tokens, 0, value);
     }
 
-    fn recursive_insert(&self, node: &mut Option<TrieNodeType>, tokens: &[u8], offset: usize, value: &TrieValueType) -> Option<TrieNodeType> {
+    fn recursive_insert(&mut self, node: &mut Option<TrieNodeType>, tokens: &[u8], offset: usize, value: &TrieValueType) -> Option<TrieNodeType> {
         let key = tokens[offset];
 
         let node = match node {
