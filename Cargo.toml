@@ -2,5 +2,9 @@
 name = "ternary_tree"
 version = "0.1.0"
 edition = "2024"
+authors = ["Marc Mosko"]
+description = "A Ternary Search Tree"
+repository = "https://github.com/mmosko/ternary_tree.git"
+license = "MIT"
 
 [dependencies]

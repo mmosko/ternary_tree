@@ -12,8 +12,16 @@ use super::trie_node::{TrieNode, TrieNodeType, TrieValueType};
 /// output version of the string.  A TST node may have a None value if it
 /// is not associated with a dictionary key.
 pub struct Trie {
-    pub root: Option<TrieNodeType>,
+    root: Option<TrieNodeType>,
     size: usize
+}
+
+macro_rules! allocate_if {
+    ($ptr:expr, $key:expr) => {
+        match $ptr {
+            Some(_) => (),
+            None => $ptr = Some(TrieNode::new(&$key, None))}
+    };
 }
 
 impl Trie {
@@ -29,36 +37,40 @@ impl Trie {
     /// 
     /// If there is already a value for the token string, panics.
     pub fn insert(&mut self, tokens: &[u8], value: &TrieValueType) {
-        self.root = self.recursive_insert(&mut self.root.clone(), tokens, 0, value);
+        assert!(tokens.len() > 0);
+        allocate_if!(self.root, tokens[0]);
+        Trie::recursive_insert(self.root.as_mut(), tokens, 0, value);
+        self.size += 1;
     }
 
-    fn recursive_insert(&mut self, node: &mut Option<TrieNodeType>, tokens: &[u8], offset: usize, value: &TrieValueType) -> Option<TrieNodeType> {
+    fn recursive_insert(node: Option<&mut TrieNodeType>, tokens: &[u8], offset: usize, value: &TrieValueType) {
         let key = tokens[offset];
 
-        let node = match node {
+        let inner = match node {
             Some(n) => n,
-            None => &mut TrieNode::new(&key, None)
+            // todo add error handling
+            None => panic!("Should never happen")
         };
         
-        if key < node.key {
-            node.left = self.recursive_insert(&mut node.left, tokens, offset, value);
-        } else if key > node.key {
-            node.right = self.recursive_insert(&mut node.right, tokens, offset, value);
+        if key < inner.key {
+            allocate_if!(inner.left, key);
+            Trie::recursive_insert(inner.left.as_mut(), tokens, offset, value);
+        } else if key > inner.key {
+            allocate_if!(inner.right, key);
+            Trie::recursive_insert(inner.right.as_mut(), tokens, offset, value);
         } else {
             // middle path
             if (offset + 1) == tokens.len() {
                 // last token
-                if node.value.is_some() {
-                    panic!("There is already a value at node {}", node);
+                if inner.value.is_some() {
+                    panic!("There is already a value at node {}", inner);
                 }
-                node.value = Some(value.clone());
-                self.size += 1;
+                inner.value = Some(value.clone());
             } else {
-                node.middle = self.recursive_insert(&mut node.middle, tokens, offset+1, value);
+                allocate_if!(inner.middle, key);
+                Trie::recursive_insert(inner.middle.as_mut(), tokens, offset+1, value);
             }
         }
-
-        Some(node.clone())
     }
 
     /// Searches the trie for the token string and returns the value
@@ -86,7 +98,7 @@ impl Trie {
                 node = &mut box_node.middle;
             }
         }
-        return None;
+        None
     }
 
     /// Finds the longest matching string for tokens.
@@ -117,7 +129,7 @@ impl Trie {
                 // middle key
                 offset += 1;
                 if box_node.value.is_some() {
-                    // get a clone of the Box out of the Option
+                    // get a clone of the Rc out of the Option
                     let value = box_node.value.as_ref().unwrap().clone();
                     longest_match = Some((value, offset));
                     longest_node = node.clone();
@@ -129,7 +141,7 @@ impl Trie {
         if let Some(mut longest_node) = longest_node {
             longest_node.uses += 1;
         }
-        return longest_match;
+        longest_match
     }
 }
 
