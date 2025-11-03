@@ -1,9 +1,9 @@
 [package]
-name = "ternary_tree"
-version = "0.1.1"
+name = "u8_ternary_tree"
+version = "0.1.2"
 edition = "2024"
 authors = ["Marc Mosko"]
-description = "A Ternary Search Tree"
+description = "A Ternary Search Tree based on [u8] input and output"
 repository = "https://github.com/mmosko/ternary_tree.git"
 license = "MIT"
 

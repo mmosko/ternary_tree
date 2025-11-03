@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "ternary_tree"
-version = "0.1.1"
+name = "u8_ternary_tree"
+version = "0.1.2"

@@ -24,6 +24,12 @@ macro_rules! allocate_if {
     };
 }
 
+impl Default for Trie {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Trie {
     pub fn new() -> Self {
         Trie { root: None, size: 0 }
@@ -33,11 +39,15 @@ impl Trie {
         self.size
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.size == 0
+    }
+
     /// Inserts a value into the trie for the token string.
     /// 
     /// If there is already a value for the token string, panics.
     pub fn insert(&mut self, tokens: &[u8], value: &TrieValueType) {
-        assert!(tokens.len() > 0);
+        assert!(!tokens.is_empty());
         allocate_if!(self.root, tokens[0]);
         Trie::recursive_insert(self.root.as_mut(), tokens, 0, value);
         self.size += 1;
